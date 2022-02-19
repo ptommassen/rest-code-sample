@@ -1,3 +1,5 @@
 package software.uniqore.storedemo.domain.entities
 
-data class ItemType(val id: Long, val name: String)
+typealias ItemTypeId = Long
+
+data class ItemType(val id: ItemTypeId, val name: String)
