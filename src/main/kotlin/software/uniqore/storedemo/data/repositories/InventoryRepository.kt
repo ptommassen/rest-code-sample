@@ -17,7 +17,8 @@ class InventoryRepository(private val dataSource: StoreDemoDataSource, private v
                 // TODO: for the current data-implementation it doesn't matter, but when using an actual DB we can greatly improve performance by
                 // extracting these data source queries and batching them
                 val itemType =
-                    dataSource.getItemType(line.itemTypeId).let { ItemType(ItemTypeId(it.itemTypeId), it.name) }
+                    dataSource.getItemType(line.itemTypeId)?.let { ItemType(ItemTypeId(it.itemTypeId), it.name) }
+                        ?: ItemType(ItemTypeId(line.itemTypeId), "UNKNOWN")
                 val reservations = dataSource.getReservationsForItemInStore(line.itemTypeId, store.id.id)
                 val validReservationCount =
                     reservations.count { reservation -> reservation.expirationTime.isAfter(currentTime) }

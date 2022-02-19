@@ -14,9 +14,10 @@ import java.time.LocalDateTime
  * and move logic out of the Kotlin code which makes it more annoying to test.
  */
 interface StoreDemoDataSource {
+    suspend fun getStores(): List<StoreData>
     suspend fun getStoreById(storeId: Long): StoreData?
     suspend fun getStoreInventory(storeId: Long): List<InventoryLine>
-    suspend fun getItemType(itemTypeId: Long): ItemType
+    suspend fun getItemType(itemTypeId: Long): ItemType?
     suspend fun getReservationsForItemInStore(itemTypeId: Long, storeId: Long): List<ReservationLine>
 }
 

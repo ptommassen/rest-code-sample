@@ -26,6 +26,10 @@ dependencies {
     testImplementation("io.mockk:mockk:1.12.2")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    testImplementation("io.rest-assured:rest-assured:4.5.0")
+    testImplementation("io.rest-assured:json-path:4.5.0")
+    testImplementation("io.rest-assured:xml-path:4.5.0")
+
 
 }
 

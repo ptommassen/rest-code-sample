@@ -14,7 +14,7 @@ import software.uniqore.storedemo.domain.entities.Store
 import software.uniqore.storedemo.domain.entities.StoreId
 
 @OptIn(ExperimentalCoroutinesApi::class)
-internal class GetStoreInventoryTest {
+internal class GetStoresInventoryTest {
     private val mockStoreRepository = mockk<StoreRepository>()
     private val mockInventoryRepository = mockk<InventoryRepository>()
     private val getStoreInventory = GetStoreInventory(
@@ -24,7 +24,7 @@ internal class GetStoreInventoryTest {
 
     @Test
     fun `getting the inventory of an existing store should return said store's inventory`() = runBlockingTest {
-        val storeId: StoreId = StoreId(1)
+        val storeId = StoreId(1)
         val store = Store(storeId, "Test Store")
         val inventory = Inventory(store, emptyList())
 
@@ -39,7 +39,7 @@ internal class GetStoreInventoryTest {
 
     @Test
     fun `trying to get the inventory of a non-existing store should return a failure`() = runBlockingTest {
-        val storeId: StoreId = StoreId(1)
+        val storeId = StoreId(1)
         coEvery { mockStoreRepository.getStoreById(storeId) } returns null
 
         val result = getStoreInventory(storeId)
