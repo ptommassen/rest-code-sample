@@ -12,7 +12,7 @@ class GetStoreInventory(
     private val inventoryRepository: InventoryRepository
 ) {
 
-    operator fun invoke(storeId: StoreId): Result<Inventory> {
+    suspend operator fun invoke(storeId: StoreId): Result<Inventory> {
         val store = storeRepository.getStoreById(storeId) ?: return Result.failure(StoreNotFoundException())
         val inventory = inventoryRepository.getInventoryForStore(store)
         return Result.success(inventory)

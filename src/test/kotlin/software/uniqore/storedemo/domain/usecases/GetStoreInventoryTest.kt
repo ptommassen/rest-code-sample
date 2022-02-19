@@ -1,8 +1,10 @@
 package software.uniqore.storedemo.domain.usecases
 
 import com.google.common.truth.Truth.assertThat
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import software.uniqore.storedemo.data.repositories.InventoryRepository
@@ -11,6 +13,7 @@ import software.uniqore.storedemo.domain.entities.Inventory
 import software.uniqore.storedemo.domain.entities.Store
 import software.uniqore.storedemo.domain.entities.StoreId
 
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class GetStoreInventoryTest {
     private val mockStoreRepository = mockk<StoreRepository>()
     private val mockInventoryRepository = mockk<InventoryRepository>()
@@ -20,13 +23,13 @@ internal class GetStoreInventoryTest {
     )
 
     @Test
-    fun `getting the inventory of an existing store should return said store's inventory`() {
-        val storeId: StoreId = 1
+    fun `getting the inventory of an existing store should return said store's inventory`() = runBlockingTest {
+        val storeId: StoreId = StoreId(1)
         val store = Store(storeId, "Test Store")
         val inventory = Inventory(store, emptyList())
 
-        every { mockStoreRepository.getStoreById(storeId) } returns store
-        every { mockInventoryRepository.getInventoryForStore(store) } returns inventory
+        coEvery { mockStoreRepository.getStoreById(storeId) } returns store
+        coEvery { mockInventoryRepository.getInventoryForStore(store) } returns inventory
 
         val result = getStoreInventory(storeId)
 
@@ -35,9 +38,9 @@ internal class GetStoreInventoryTest {
     }
 
     @Test
-    fun `trying to get the inventory of a non-existing store should return a failure`() {
-        val storeId: StoreId = 1
-        every { mockStoreRepository.getStoreById(storeId) } returns null
+    fun `trying to get the inventory of a non-existing store should return a failure`() = runBlockingTest {
+        val storeId: StoreId = StoreId(1)
+        coEvery { mockStoreRepository.getStoreById(storeId) } returns null
 
         val result = getStoreInventory(storeId)
 
