@@ -34,6 +34,13 @@ curl -X GET -H "Content-Type: application/json" \
     http://localhost:8080/stores
 ```
 
+Get item types:
+
+```shell
+curl -X GET -H "Content-Type: application/json" \
+    http://localhost:8080/items
+```
+
 Get a store's inventory:
 
 ```shell

@@ -13,5 +13,7 @@ class ItemRepository(private val storeDemoDataSource: StoreDemoDataSource) {
 
     suspend fun createItemType(name: String): ItemType = storeDemoDataSource.createItemType(name).toDomain()
 
+    suspend fun getItemTypes() = storeDemoDataSource.getItemTypes().map { it.toDomain() }
+
     private fun DataItemType.toDomain() = ItemType(id = ItemTypeId(itemTypeId), name = name)
 }

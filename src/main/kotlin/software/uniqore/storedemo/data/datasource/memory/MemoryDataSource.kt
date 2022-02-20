@@ -47,6 +47,8 @@ class MemoryDataSource : StoreDemoDataSource {
         return itemType
     }
 
+    override suspend fun getItemTypes(): List<ItemType> = itemTypes.values.toList()
+
     override suspend fun getReservationsForItemInStore(itemTypeId: Long, storeId: Long) =
         reservations[Pair(itemTypeId, storeId)] ?: emptyList()
 
