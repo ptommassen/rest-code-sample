@@ -15,22 +15,37 @@ import kotlin.random.Random
 class MemoryDataSource : StoreDemoDataSource {
     private val stores = mutableMapOf<Long, StoreData>()
     private val itemTypes = mutableMapOf<Long, ItemType>()
-    private val storeInventories = mutableMapOf<Long, List<InventoryLine>>()
+    private val storeInventories = mutableMapOf<Long, MutableMap<Long, InventoryLine>>()
     private val reservations = mutableMapOf<Pair<Long, Long>, MutableList<ReservationLine>>()
 
     override suspend fun getStores() = stores.values.toList()
 
     override suspend fun getStoreById(storeId: Long) = stores[storeId]
 
-    override suspend fun getStoreInventory(storeId: Long) = storeInventories[storeId] ?: emptyList()
+    override suspend fun getStoreInventory(storeId: Long) = storeInventories[storeId]?.values?.toList() ?: emptyList()
 
     override suspend fun getStoreInventoryStock(storeId: Long, itemId: Long): Int =
         storeInventories[storeId]?.let {
-            it.firstOrNull { line -> line.itemTypeId == itemId }?.amount
+            it[itemId]?.amount
         } ?: 0
+
+    override suspend fun putStoreInventoryStock(storeId: Long, itemId: Long, amount: Int) {
+        storeInventories[storeId]?.let {
+            val line = it[itemId]?.copy(amount = amount) ?: InventoryLine(itemId, amount)
+            it.put(itemId, line)
+        }
+    }
 
 
     override suspend fun getItemType(itemTypeId: Long) = itemTypes[itemTypeId]
+
+    override suspend fun createItemType(name: String): ItemType {
+        val maxId = itemTypes.keys.maxOfOrNull { it } ?: 0
+        val newItemId = maxId + 1
+        val itemType = ItemType(newItemId, name)
+        itemTypes[newItemId] = itemType
+        return itemType
+    }
 
     override suspend fun getReservationsForItemInStore(itemTypeId: Long, storeId: Long) =
         reservations[Pair(itemTypeId, storeId)] ?: emptyList()
@@ -70,10 +85,11 @@ class MemoryDataSource : StoreDemoDataSource {
         }
 
         testStores.forEach { store ->
-            val lines = testItems.map { item ->
-                InventoryLine(item.itemTypeId, Random.nextInt(1, 5))
+            val map = mutableMapOf<Long, InventoryLine>()
+            testItems.forEach { item ->
+                map[item.itemTypeId] = InventoryLine(item.itemTypeId, Random.nextInt(1, 5))
             }
-            storeInventories[store.storeId] = lines
+            storeInventories[store.storeId] = map
         }
     }
 

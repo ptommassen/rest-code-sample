@@ -9,7 +9,9 @@ import software.uniqore.storedemo.data.datasource.ItemType as DataItemType
 @Component
 class ItemRepository(private val storeDemoDataSource: StoreDemoDataSource) {
 
-    suspend fun getItemTypeById(itemTypeId: ItemTypeId) = storeDemoDataSource.getItemType(itemTypeId.id).toDomain()
+    suspend fun getItemTypeById(itemTypeId: ItemTypeId) = storeDemoDataSource.getItemType(itemTypeId.id)?.toDomain()
 
-    private fun DataItemType?.toDomain() = this?.let { ItemType(id = ItemTypeId(itemTypeId), name = name) }
+    suspend fun createItemType(name: String): ItemType = storeDemoDataSource.createItemType(name).toDomain()
+
+    private fun DataItemType.toDomain() = ItemType(id = ItemTypeId(itemTypeId), name = name)
 }

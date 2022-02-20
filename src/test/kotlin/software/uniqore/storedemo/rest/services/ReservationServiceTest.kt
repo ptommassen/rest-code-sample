@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.StoreId
-import software.uniqore.storedemo.domain.usecases.OutOfStockException
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
 import software.uniqore.storedemo.domain.usecases.ReserveItem
 
 internal class ReservationServiceTest {

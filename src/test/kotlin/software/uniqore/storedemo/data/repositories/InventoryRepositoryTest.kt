@@ -3,7 +3,9 @@ package software.uniqore.storedemo.data.repositories
 import com.google.common.truth.Truth.assertThat
 import io.mockk.coEvery
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.jupiter.api.Test
@@ -14,6 +16,7 @@ import software.uniqore.storedemo.domain.entities.Inventory
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.Store
 import software.uniqore.storedemo.domain.entities.StoreId
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
 import java.time.LocalDateTime
 import software.uniqore.storedemo.data.datasource.ItemType as DataItemType
 import software.uniqore.storedemo.domain.entities.ItemType as DomainItemType
@@ -25,9 +28,10 @@ internal class InventoryRepositoryTest {
         coEvery { getItemType(ITEM_TYPE_ID1) } returns DataItemType(ITEM_TYPE_ID1, ITEM_TYPE_NAME1)
         coEvery { getItemType(ITEM_TYPE_ID2) } returns DataItemType(ITEM_TYPE_ID2, ITEM_TYPE_NAME2)
         coEvery { getReservationsForItemInStore(any(), any()) } returns emptyList()
+        coEvery { putStoreInventoryStock(any(), any(), any()) } just runs
     }
     private val mockClockRepository = mockk<ClockRepository> {
-        every { getCurrentDateTime() } answers { LocalDateTime.now() }
+        every { getCurrentDateTime() } answers { NOW }
     }
 
     private val inventoryRepository = InventoryRepository(
@@ -100,13 +104,51 @@ internal class InventoryRepositoryTest {
         assertThat(result.perItemList[0].total).isEqualTo(amount)
     }
 
+    @Test
+    fun `updating the stock of an item should work`() = runBlockingTest {
+        val newAmount = 5
+        val reservations = 3
+
+        coEvery { mockDataStore.getReservationsForItemInStore(ITEM_TYPE_ID1, STORE_ID) } returns (1..reservations).map {
+            ReservationLine(
+                ITEM_TYPE_ID1, STORE_ID, "Dummy Person", NOW.plusMinutes(3)
+            )
+        }
+
+        val expectedLine = Inventory.PerItemType(ITEM_TYPE_OBJECT1, newAmount - reservations, reservations)
+        val result = inventoryRepository.updateInventory(STORE_OBJECT, ITEM_TYPE_OBJECT1, newAmount)
+
+        assertThat(result.isSuccess).isTrue()
+        assertThat(result.getOrNull()).isEqualTo(expectedLine)
+    }
+
+    @Test
+    fun `updating the stock of an item to less than the current reservations should fail`() = runBlockingTest {
+        val newAmount = 5
+        val reservations = 6
+
+        coEvery { mockDataStore.getReservationsForItemInStore(ITEM_TYPE_ID1, STORE_ID) } returns (1..reservations).map {
+            ReservationLine(
+                ITEM_TYPE_ID1, STORE_ID, "Dummy Person", NOW.plusMinutes(3)
+            )
+        }
+
+        val result = inventoryRepository.updateInventory(STORE_OBJECT, ITEM_TYPE_OBJECT1, newAmount)
+
+        assertThat(result.isFailure).isTrue()
+        assertThat(result.exceptionOrNull()).isInstanceOf(OutOfStockException::class.java)
+    }
+
     companion object {
         const val ITEM_TYPE_ID1 = 1L
         const val ITEM_TYPE_ID2 = 2L
         const val ITEM_TYPE_NAME1 = "Hamers"
         const val ITEM_TYPE_NAME2 = "Sikkels"
+        val ITEM_TYPE_OBJECT1 = DomainItemType(ItemTypeId(ITEM_TYPE_ID1), ITEM_TYPE_NAME1)
 
         const val STORE_ID = 1337L
         val STORE_OBJECT = Store(id = StoreId(STORE_ID), name = "Dagobert's IJzerwaren Franchise")
+
+        val NOW = LocalDateTime.now()
     }
 }

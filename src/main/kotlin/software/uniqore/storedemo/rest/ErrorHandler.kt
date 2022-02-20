@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
-import software.uniqore.storedemo.domain.usecases.ItemNotFoundException
-import software.uniqore.storedemo.domain.usecases.OutOfStockException
-import software.uniqore.storedemo.domain.usecases.StoreNotFoundException
+import software.uniqore.storedemo.domain.exceptions.ItemNotFoundException
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
+import software.uniqore.storedemo.domain.exceptions.StoreNotFoundException
 
 @ControllerAdvice
 class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
@@ -46,4 +46,6 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             HttpHeaders(), HttpStatus.NOT_FOUND, request!!
         )
     }
+
+
 }

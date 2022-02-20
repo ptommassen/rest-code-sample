@@ -8,9 +8,9 @@ import software.uniqore.storedemo.data.repositories.StoreRepository
 import software.uniqore.storedemo.domain.entities.Customer
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.StoreId
-
-class ItemNotFoundException : Exception()
-class OutOfStockException : Exception()
+import software.uniqore.storedemo.domain.exceptions.ItemNotFoundException
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
+import software.uniqore.storedemo.domain.exceptions.StoreNotFoundException
 
 @Component
 class ReserveItem(

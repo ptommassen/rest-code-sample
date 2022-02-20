@@ -12,6 +12,7 @@ import software.uniqore.storedemo.data.repositories.StoreRepository
 import software.uniqore.storedemo.domain.entities.Inventory
 import software.uniqore.storedemo.domain.entities.Store
 import software.uniqore.storedemo.domain.entities.StoreId
+import software.uniqore.storedemo.domain.exceptions.StoreNotFoundException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 internal class GetStoresInventoryTest {

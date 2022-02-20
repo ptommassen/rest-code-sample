@@ -17,6 +17,9 @@ import software.uniqore.storedemo.domain.entities.ItemType
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.Store
 import software.uniqore.storedemo.domain.entities.StoreId
+import software.uniqore.storedemo.domain.exceptions.ItemNotFoundException
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
+import software.uniqore.storedemo.domain.exceptions.StoreNotFoundException
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalCoroutinesApi::class)

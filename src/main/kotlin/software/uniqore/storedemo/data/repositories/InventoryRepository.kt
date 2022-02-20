@@ -6,6 +6,8 @@ import software.uniqore.storedemo.domain.entities.Inventory
 import software.uniqore.storedemo.domain.entities.ItemType
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.Store
+import software.uniqore.storedemo.domain.exceptions.OutOfStockException
+import java.time.LocalDateTime
 
 @Component
 class InventoryRepository(private val dataSource: StoreDemoDataSource, private val clockRepository: ClockRepository) {
@@ -21,9 +23,8 @@ class InventoryRepository(private val dataSource: StoreDemoDataSource, private v
                 val itemType =
                     dataSource.getItemType(line.itemTypeId)?.let { ItemType(ItemTypeId(it.itemTypeId), it.name) }
                         ?: ItemType(ItemTypeId(line.itemTypeId), "UNKNOWN")
-                val reservations = dataSource.getReservationsForItemInStore(line.itemTypeId, store.id.id)
                 val validReservationCount =
-                    reservations.count { reservation -> reservation.expirationTime.isAfter(currentTime) }
+                    countReservations(line.itemTypeId, store, currentTime)
                 Inventory.PerItemType(
                     itemType = itemType,
                     available = line.amount - validReservationCount,
@@ -33,5 +34,30 @@ class InventoryRepository(private val dataSource: StoreDemoDataSource, private v
         )
         return result
     }
+
+    suspend fun updateInventory(store: Store, item: ItemType, amount: Int): Result<Inventory.PerItemType> {
+        val currentReservations = countReservations(item.id.id, store, clockRepository.getCurrentDateTime())
+        if (amount < currentReservations) return Result.failure(OutOfStockException())
+        dataSource.putStoreInventoryStock(store.id.id, item.id.id, amount)
+        return Result.success(
+            Inventory.PerItemType(
+                itemType = item,
+                available = amount - currentReservations,
+                reserved = currentReservations
+            )
+        )
+    }
+
+    private suspend fun countReservations(
+        itemType: Long,
+        store: Store,
+        currentTime: LocalDateTime?
+    ): Int {
+        val reservations = dataSource.getReservationsForItemInStore(itemType, store.id.id)
+        val validReservationCount =
+            reservations.count { reservation -> reservation.expirationTime.isAfter(currentTime) }
+        return validReservationCount
+    }
+
 
 }
