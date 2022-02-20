@@ -75,6 +75,32 @@ internal class InventoryServiceTest {
     }
 
     @Test
+    fun `adding a not-yet-existing item to an inventory should work`() {
+        val newAmount = 5
+        val itemName = "Schroefjes"
+
+        coEvery {
+            mockCreateItemType.invoke(itemName)
+        } returns ItemType(ItemTypeId(ITEM_TYPE_ID), itemName)
+
+        coEvery {
+            mockUpdateStock.invoke(
+                StoreId(STORE_ID),
+                ItemTypeId(ITEM_TYPE_ID),
+                newAmount
+            )
+        } returns Result.success(
+            Inventory.PerItemType(ItemType(ItemTypeId(ITEM_TYPE_ID), ITEM_TYPE_NAME), 5, 0)
+        )
+
+        val expected = InventoryModel.PerItem(ITEM_TYPE_ID, ITEM_TYPE_NAME, newAmount, 0, newAmount)
+
+        val request = UpdateInventoryLineModel(name = itemName, total = newAmount)
+        val result = service.putInventoryLine(STORE_ID, request)
+        assertThat(result).isEqualTo(expected)
+    }
+
+    @Test
     fun `updating a nonexistent inventory should fail`() {
         coEvery { mockUpdateStock.invoke(StoreId(STORE_ID), ItemTypeId(ITEM_TYPE_ID), any()) } returns Result.failure(
             StoreNotFoundException()

@@ -17,6 +17,8 @@ To run:
 ./gradlew clean bootRun
 ```
 
+Note that the application starts with some random stores and inventory already added.
+
 To run the tests:
 
 ```shell
@@ -43,7 +45,7 @@ Update a store's inventory with an existing item type:
 
 ```shell
 curl -X PUT -H "Content-Type: application/json" \
-    -d '{"id" : [ITEM TYPE ID], "total": [AMOUNT}' \
+    -d '{"id" : [ITEM TYPE ID], "total": [AMOUNT]}' \
     http://localhost:8080/stores/1/inventory
 ```
 
