@@ -41,6 +41,14 @@ curl -X GET -H "Content-Type: application/json" \
     http://localhost:8080/items
 ```
 
+Create a new item type:
+
+```shell
+curl -X POST -H "Content-Type: application/json" \
+    -d '{"name": [NAME] }' \
+    http://localhost:8080/items
+```
+
 Get a store's inventory:
 
 ```shell
@@ -68,7 +76,7 @@ Make a reservation:
 
 ```shell
 curl -X POST -H "Content-Type: application/json" \
-    -d '{"storeId": [STORE ID], "itemTypeId": [ITEM TYPE ID], "customerName": [NAME}' \
+    -d '{"storeId": [STORE ID], "itemTypeId": [ITEM TYPE ID], "customerName": [NAME]}' \
     http://localhost:8080/reservation
 ```
 
