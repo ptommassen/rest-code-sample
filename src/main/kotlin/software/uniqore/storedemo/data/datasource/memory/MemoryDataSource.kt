@@ -5,6 +5,7 @@ import software.uniqore.storedemo.data.datasource.ItemType
 import software.uniqore.storedemo.data.datasource.ReservationLine
 import software.uniqore.storedemo.data.datasource.StoreData
 import software.uniqore.storedemo.data.datasource.StoreDemoDataSource
+import java.time.LocalDateTime
 import kotlin.random.Random
 
 /**
@@ -15,7 +16,7 @@ class MemoryDataSource : StoreDemoDataSource {
     private val stores = mutableMapOf<Long, StoreData>()
     private val itemTypes = mutableMapOf<Long, ItemType>()
     private val storeInventories = mutableMapOf<Long, List<InventoryLine>>()
-    private val reservations = mutableMapOf<Pair<Long, Long>, List<ReservationLine>>()
+    private val reservations = mutableMapOf<Pair<Long, Long>, MutableList<ReservationLine>>()
 
     override suspend fun getStores() = stores.values.toList()
 
@@ -23,10 +24,28 @@ class MemoryDataSource : StoreDemoDataSource {
 
     override suspend fun getStoreInventory(storeId: Long) = storeInventories[storeId] ?: emptyList()
 
+    override suspend fun getStoreInventoryStock(storeId: Long, itemId: Long): Int =
+        storeInventories[storeId]?.let {
+            it.firstOrNull { line -> line.itemTypeId == itemId }?.amount
+        } ?: 0
+
+
     override suspend fun getItemType(itemTypeId: Long) = itemTypes[itemTypeId]
 
     override suspend fun getReservationsForItemInStore(itemTypeId: Long, storeId: Long) =
         reservations[Pair(itemTypeId, storeId)] ?: emptyList()
+
+    override suspend fun putReservation(
+        itemTypeId: Long,
+        storeId: Long,
+        customer: String,
+        expirationTime: LocalDateTime
+    ) {
+        val key = Pair(itemTypeId, storeId)
+        var current = mutableListOf<ReservationLine>()
+        current = reservations.putIfAbsent(key, current) ?: current
+        current.add(ReservationLine(itemTypeId, storeId, customer, expirationTime))
+    }
 
 
     private val testStores = listOf(

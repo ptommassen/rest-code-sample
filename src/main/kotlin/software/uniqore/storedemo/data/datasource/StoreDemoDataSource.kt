@@ -17,8 +17,10 @@ interface StoreDemoDataSource {
     suspend fun getStores(): List<StoreData>
     suspend fun getStoreById(storeId: Long): StoreData?
     suspend fun getStoreInventory(storeId: Long): List<InventoryLine>
+    suspend fun getStoreInventoryStock(storeId: Long, itemId: Long): Int
     suspend fun getItemType(itemTypeId: Long): ItemType?
     suspend fun getReservationsForItemInStore(itemTypeId: Long, storeId: Long): List<ReservationLine>
+    suspend fun putReservation(itemTypeId: Long, storeId: Long, customer: String, expirationTime: LocalDateTime)
 }
 
 

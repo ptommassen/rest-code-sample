@@ -1,11 +1,13 @@
 package software.uniqore.storedemo.data.repositories
 
+import org.springframework.stereotype.Component
 import software.uniqore.storedemo.data.datasource.StoreDemoDataSource
 import software.uniqore.storedemo.domain.entities.Inventory
 import software.uniqore.storedemo.domain.entities.ItemType
 import software.uniqore.storedemo.domain.entities.ItemTypeId
 import software.uniqore.storedemo.domain.entities.Store
 
+@Component
 class InventoryRepository(private val dataSource: StoreDemoDataSource, private val clockRepository: ClockRepository) {
 
     suspend fun getInventoryForStore(store: Store): Inventory {

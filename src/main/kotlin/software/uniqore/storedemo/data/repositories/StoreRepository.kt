@@ -18,5 +18,5 @@ class StoreRepository(private val dataSource: StoreDemoDataSource) {
         return stores.mapNotNull { it.toDomain() }
     }
 
-    fun StoreData?.toDomain() = this?.let { Store(id = StoreId(it.storeId), name = it.name) }
+    private fun StoreData?.toDomain() = this?.let { Store(id = StoreId(it.storeId), name = it.name) }
 }
